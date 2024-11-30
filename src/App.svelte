@@ -1,10 +1,13 @@
 <script lang="ts">
-  import { isHangul, compose, decompose } from "./utils/common";
+  import { isHangul, composeAll, decomposeAll } from "./utils/common";
+  import { g2p } from "./utils/g2p";
   let inputText = "";
   let result = "";
 
   function processText() {
-    result = `한글 여부 테스트: ${isHangul(inputText) ? decompose(inputText).toString() : "한글이 아님"}`;
+    let output = g2p(decomposeAll(inputText));
+    result = `한글 여부 테스트: ${output}`;
+    console.log(`${inputText} => ${output}`);
   }
 </script>
 
