@@ -23,6 +23,7 @@ function isHangul(text: string): boolean {
 
 function decompose(text: string): string {
     if (text.length === 0) return '';
+    if (!isHangul(text)) return text;
 
     let charCode = text.charCodeAt(0);
     let base = charCode - HANGUL_OFFSET;
