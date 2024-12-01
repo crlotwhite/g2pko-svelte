@@ -58,7 +58,7 @@ function clusteredCoda2(text: string): string {
     ];
 
     for (const { from, to } of pair) {
-        text = text.replaceAll(ㄴnew RegExp(`${from}(?!${ONSET['ㅇ']})|${from}$|${from}(?=[\\s\\.\\!\\?])`, 'g'), to);
+        text = text.replaceAll(new RegExp(`${from}(?!${ONSET['ㅇ']})|${from}$|${from}(?=[\\s\\.\\!\\?])`, 'g'), to);
     }
 
     return text;
