@@ -14,3 +14,8 @@ make run # 앱 실행
 ```
 
 실행 중인 Docker 환경에 접속하려는 경우 `make enter`를 사용하면 됩니다.
+
+## 데모
+Github Pages를 통해 배포 되었습니다.
+아래의 링크를 통해 사용해 보실 수 있습니다.
+https://crlotwhite.github.io/g2pko-svelte/
