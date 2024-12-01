@@ -18,11 +18,28 @@ function g2p(text: string): { text: string, logs: string[] } {
         aspiration,
     ];
 
+    const functionNames = [
+        'exceptionWords',
+        'diphthong',
+        'palatalization',
+        'liquidToNasalAssimilation',
+        'epenthesis',
+        'nasalization',
+        'nasalInsertion',
+        'lateralization',
+        'tensification',
+        'liaison',
+        'lenition',
+        'clusterSimplification1',
+        'clusterSimplification2',
+        'aspiration',
+    ];
+
     let logs: string[] = [];
-    for (const p of process) {
+    for (let i = 0; i < process.length; i++) {
         const before = text;
-        text = p(text);
-        const log = `[Process] ${p.name} ${before} -> ${text}`;
+        text = process[i](text);
+        const log = `[Process] ${functionNames[i]} ${before} -> ${text}`;
         console.log(log);
         logs.push(log);
     }
