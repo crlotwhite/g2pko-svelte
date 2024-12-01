@@ -1,7 +1,7 @@
-const HANGUL_OFFSET = 0xac00;
-const ONSET_OFFSET = 0x10ff;
+const HANGUL_OFFSET = 0xAC00;
+const ONSET_OFFSET = 0x10FF;
 const NUCLEUS_OFFSET = 0x1160;
-const CODA_OFFSET = 0x11a7;
+const CODA_OFFSET = 0x11A7;
 
 const ONSET = {
     'ㄱ': '\u1100',

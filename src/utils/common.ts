@@ -29,10 +29,12 @@ function decompose(text: string): string {
 }
 
 function compose(onset: string, nucleus: string, coda: string = ''): string {
-    let onsetCode = onset.charCodeAt(0) - ONSET_OFFSET;
-    let nucleusCode = nucleus.charCodeAt(0) - NUCLEUS_OFFSET;
-    let codaCode = coda ? coda.charCodeAt(0) - CODA_OFFSET : 0;
-    let charCode = HANGUL_OFFSET + 588 * onsetCode + 28 * nucleusCode + codaCode;
+    const onsetIndex = onset.charCodeAt(0) - (ONSET_OFFSET + 1);
+    const nucleusIndex = nucleus.charCodeAt(0) - (NUCLEUS_OFFSET + 1);
+    const codaIndex = coda ? coda.charCodeAt(0) - CODA_OFFSET : 0;
+
+    const charCode = HANGUL_OFFSET + onsetIndex * 588 + nucleusIndex * 28 + codaIndex;
+
     return String.fromCharCode(charCode);
 }
 

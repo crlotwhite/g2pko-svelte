@@ -5,9 +5,8 @@
   let result = "";
 
   function processText() {
-    let output = g2p(decomposeAll(inputText));
+    let output = composeAll(g2p(decomposeAll(inputText)));
     result = `한글 여부 테스트: ${output}`;
-    console.log(`${inputText} => ${output}`);
   }
 </script>
 
