@@ -12,6 +12,7 @@ function g2p(text: string): string {
     text = palatalization(text);
     text = liquidToNasalAssimilation(text);
     text = nasalization(text);
+    text = nasalInsertion(text);
     text = lateralization(text);
     text = tensification(text);
     return text;
@@ -256,6 +257,12 @@ function tensification(text: string): string {
     }
 
     return text
+}
+
+// Rule 29. Nasal Insertion
+function nasalInsertion(text: string): string {
+    text = text.replaceAll(new RegExp(`(?<=[^${Object.values(VOWEL).join('')}])${ONSET['ㅇ']}(?=[${VOWEL['ㅣ']}${VOWEL['ㅑ']}${VOWEL['ㅕ']}${VOWEL['ㅛ']}${VOWEL['ㅠ']}])`, 'g'), ONSET['ㄴ']);
+    return text;
 }
 
 
