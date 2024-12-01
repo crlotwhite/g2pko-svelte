@@ -1,20 +1,4 @@
-const HANGUL_OFFSET = 0xac00;
-const ONSET_OFFSET = 0x10ff;
-const NUCLEUS_OFFSET = 0x1160;
-const CODA_OFFSET = 0x11a7;
-
-// const ONSET = Array.from(
-//     { length: 0x115F - 0x1100 },
-//     (_, i) => String.fromCharCode(0x1100 + i)
-// );
-// const NUCLEUS = Array.from(
-//   { length: 0x11A8 - 0x1161 },
-//   (_, i) => String.fromCharCode(0x1161 + i)
-// );
-// const CODA = Array.from(
-//     { length: 0x1200 - 0x11A8 },
-//     (_, i) => String.fromCharCode(0x11A8 + i)
-// );
+import { HANGUL_OFFSET, ONSET_OFFSET, NUCLEUS_OFFSET, CODA_OFFSET } from './constant';
 
 function isHangul(text: string): boolean {
     if (text.length !== 1) return false;

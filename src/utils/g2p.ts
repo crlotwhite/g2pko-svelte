@@ -1,3 +1,5 @@
+import { ONSET, CODA, VOWEL } from './constant';
+
 function g2p(text: string): string {
     text = diphthongRunle(text);
     text = diphthongRunle(text);
@@ -9,40 +11,68 @@ function g2p(text: string): string {
 
 // Rule 5. Diphthong Runle
 function diphthongRunle(text: string): string {
-    text = text.replaceAll(/(?<=[^\u{1105}\u{110B}])\u{1168}/ug, '\u1166');
-    text = text.replaceAll(/(?<=[^\u{110B}])\u{1174}/ug, '\u1175');
+    text = text.replaceAll(new RegExp(`(?<=[^${ONSET['ㅇ']}${ONSET['ㄹ']}])${VOWEL['ㅖ']}`, 'g'), VOWEL['ㅔ']);
+    text = text.replaceAll(new RegExp(`(?<=[^${ONSET['ㅇ']}])${VOWEL['ㅢ']}`, 'g'), VOWEL['ㅣ']);
     return text;
 }
 
 // Rule 9. Coda Simplification
 function codaSimplification(text: string): string {
-    text = text.replaceAll(/[\u11A9\u11BF](?!\u110B)|[\u11A9\u11BF]$|[\u11A9\u11BF](?=[\s\.!\?])/g, '\u11A8');
-    text = text.replaceAll(/[\u11BA\u11BB\u11BD\u11BE\u11C0](?!\u110B)|[\u11BA\u11BB\u11BD\u11BE\u11C0]$|[\u11BA\u11BB\u11BD\u11BE\u11C0](?=[\s\.!\?])/g, '\u11AE');
-    text = text.replaceAll(/\u11C1(?!\u110B)|\u11C1$|\u11C1(?=[\s\.!\?])/g, '\u11B8');
+    const pair = [
+        { from: `${CODA['ㄲ']}${CODA['ㅋ']}`, to: CODA['ㄱ'] },
+        { from: `${CODA['ㅅ']}${CODA['ㅆ']}${CODA['ㅈ']}${CODA['ㅊ']}${CODA['ㅌ']}`, to: CODA['ㄷ'] },
+        { from: `${CODA['ㅍ']}`, to: CODA['ㅂ'] },
+    ];
+
+    for (const { from, to } of pair) {
+        text = text.replaceAll(new RegExp(`${from}(?!${ONSET['ㅇ']})|${from}$|${from}(?=[\\s\\.\\!\\?])`, 'g'), to);
+    }
+
     return text;
 }
 
 // Rule 10. Clustered Coda1
 function clusteredCoda1(text: string): string {
-    // 예외: 밟, 넓
-    text = text.replaceAll(/\u1107\u1161\u11B2(?!\u110B)|\u1107\u1161\u11B2$|\u1107\u1161\u11B2(?=[\s\.!\?])/g, '\u1107\u1161\u11B8');
-    text = text.replaceAll(/\u1102\u1165\u11B2(?!\u110B)|\u1102\u1165\u11B2$|\u1102\u1165\u11B2(?=[\s\.!\?])/g, '\u1102\u1165\u11B8');
+    const pair = [
+        { from: `${ONSET['ㅂ']}${VOWEL['ㅏ']}${CODA['ㄼ']}`, to: `${ONSET['ㅂ']}${VOWEL['ㅏ']}${CODA['ㅂ']}` },
+        { from: `${ONSET['ㄴ']}${VOWEL['ㅓ']}${CODA['ㄼ']}`, to: `${ONSET['ㄴ']}${VOWEL['ㅓ']}${CODA['ㅂ']}` },
+        { from: `${CODA['ㄳ']}`, to: CODA['ㄱ'] },
+        { from: `${CODA['ㄵ']}`, to: CODA['ㄴ'] },
+        { from: `${CODA['ㄼ']}${CODA['ㄽ']}${CODA['ㄾ']}`, to: CODA['ㄹ'] },
+        { from : `${CODA['ㅄ']}`, to: CODA['ㅂ'] },
+    ];
 
-    text = text.replaceAll(/\u11AA(?!\u110B)|\u11AA$|\u11AA(?=[\s\.!\?])/g, '\u11A8');
-    text = text.replaceAll(/\u11AC(?!\u110B)|\u11AC$|\u11AC(?=[\s\.!\?])/g, '\u11AB');
-    text = text.replaceAll(/[\u11B2\u11B3\u11B4](?!\u110B)|[\u11B2\u11B3\u11B4]$|[\u11B2\u11B3\u11B4](?=[\s\.!\?])/g, '\u11AF');
-    text = text.replaceAll(/\u11B9(?!\u110B)|\u11B9$|\u11B9(?=[\s\.!\?])/g, '\u11B8');
+    for (const { from, to } of pair) {
+        text = text.replaceAll(new RegExp(`${from}(?!${ONSET['ㅇ']})|${from}$|${from}(?=[\\s\\.\\!\\?])`, 'g'), to);
+    }
+
     return text;
 }
 
 // Rule 11. Clustered Coda2
 function clusteredCoda2(text: string): string {
-    text = text.replaceAll(/\u11B0(?!\u110B)|\u11B0$|\u11B0(?=[\s\.!\?])/g, '\u11A8');
-    text = text.replaceAll(/\u11B1(?!\u110B)|\u11B1$|\u11B1(?=[\s\.!\?])/g, '\u11B7');
-    text = text.replaceAll(/\u11B5(?!\u110B)|\u11B5$|\u11B5(?=[\s\.!\?])/g, '\u11B8');
+    const pair = [
+        { from: `${CODA['ㄺ']}`, to: `${CODA['ㄱ']}` },
+        { from: `${CODA['ㄻ']}`, to: `${CODA['ㅁ']}` },
+        { from: `${CODA['ㄿ']}`, to: `${CODA['ㅂ']}` },
+    ];
+
+    for (const { from, to } of pair) {
+        text = text.replaceAll(ㄴnew RegExp(`${from}(?!${ONSET['ㅇ']})|${from}$|${from}(?=[\\s\\.\\!\\?])`, 'g'), to);
+    }
+
     return text;
 }
+/*
+1. ‘ㅎ(ㄶ, ㅀ)’ 뒤에 ‘ㄱ, ㄷ, ㅈ’이 결합되는 경우에는, 뒤 음절 첫소리와 합쳐서 [ㅋ, ㅌ, ㅊ]으로 발음한다.
+〔붙임 1〕 받침 ‘ㄱ(ㄺ), ㄷ, ㅂ(ㄼ), ㅈ(ㄵ)’이 뒤 음절 첫소리 ‘ㅎ’과 결합되는 경우에도, 역시 두 소리를 합쳐서 [ㅋ, ㅌ, ㅍ, ㅊ]으로 발음한다.
+〔붙임 2〕 규정에 따라 ‘ㄷ’으로 발음되는 ‘ㅅ, ㅈ, ㅊ, ㅌ’의 경우에는 이에 준한다.
+2. ‘ㅎ(ㄶ, ㅀ)’ 뒤에 ‘ㅅ’이 결합되는 경우에는, ‘ㅅ’을 [ㅆ]으로 발음한다.
+3. ‘ㅎ’ 뒤에 ‘ㄴ’이 결합되는 경우에는, [ㄴ]으로 발음한다.
+〔붙임〕 ‘ㄶ, ㅀ’ 뒤에 뒤에 모음으로 시작된 어미나 접미사가 결합되는 경우에는, ‘ㅎ’을 발음하지 않는다.
+3. ‘ㅎ(ㄶ, ㅀ)’ 뒤에 ‘ㄴ’이 결합되는 경우에는, [ㄴ]으로 발음한다.
 
+*/
 // Rule 12. Coda H
 function codaH(text: string): string {
     return text;
