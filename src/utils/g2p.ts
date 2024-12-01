@@ -1,11 +1,41 @@
 import { ONSET, CODA, VOWEL } from './constant';
+import { decomposeAll } from './common';
 
 function g2p(text: string): string {
+    text = exceptionWords(text);
     text = diphthong(text);
     text = lenition(text);
     text = clusterSimplification1(text);
     text = clusterSimplification2(text);
     text = aspiration(text);
+    text = liaison(text);
+    text = palatalization(text);
+    text = liquidToNasalAssimilation(text);
+    text = nasalization(text);
+    text = lateralization(text);
+    text = tensification(text);
+    return text;
+}
+
+function exceptionWords(text: string): string {
+    const pair = [
+        { from: decomposeAll('의견란'), to: decomposeAll('의견난') },
+        { from: decomposeAll('임진란'), to: decomposeAll('임진난') },
+        { from: decomposeAll('생산량'), to: decomposeAll('생산냥') },
+        { from: decomposeAll('결단력'), to: decomposeAll('결딴녁') },
+        { from: decomposeAll('공권력'), to: decomposeAll('공꿘녁') },
+        { from: decomposeAll('동원령'), to: decomposeAll('동원녕') },
+        { from: decomposeAll('상견례'), to: decomposeAll('상견녜') },
+        { from: decomposeAll('횡단로'), to: decomposeAll('횡단노') },
+        { from: decomposeAll('이원론'), to: decomposeAll('이원논') },
+        { from: decomposeAll('입원료'), to: decomposeAll('이붠뇨') },
+        { from: decomposeAll('구근류'), to: decomposeAll('구근뉴') },
+    ];
+
+    for (const { from, to } of pair) {
+        text = text.replaceAll(from, to);
+    }
+
     return text;
 }
 
@@ -110,8 +140,25 @@ function aspiration(text: string): string {
     return text;
 }
 
-// Rule 13. Liaison Rule
+// Rule 13, 14, 15
 function liaison(text: string): string {
+    // Rule 15. Consonant Substitution with Liaison
+    const pair1 = [
+        { from: CODA['ㄲ'], to: ONSET['ㅋ'] },
+        { from: CODA['ㅋ'], to: ONSET['ㅋ'] },
+        { from: CODA['ㅅ'], to: ONSET['ㄷ'] },
+        { from: CODA['ㅆ'], to: ONSET['ㄷ'] },
+        { from: CODA['ㅈ'], to: ONSET['ㄷ'] },
+        { from: CODA['ㅊ'], to: ONSET['ㄷ'] },
+        { from: CODA['ㅌ'], to: ONSET['ㄷ'] },
+        { from: CODA['ㅍ'], to: ONSET['ㅂ'] },
+    ]
+
+    for (const { from, to } of pair1) {
+        text = text.replaceAll(new RegExp(`${from}${ONSET['ㅇ']}(?=[${VOWEL['ㅏ']}${VOWEL['ㅓ']}${VOWEL['ㅗ']}${VOWEL['ㅜ']}${VOWEL['ㅟ']}])`, 'g'), to);
+    }
+
+    // Rule 13. Liaison Rule
     const codas = Object.keys(CODA);
     const onsets = Object.keys(ONSET);
 
@@ -121,7 +168,8 @@ function liaison(text: string): string {
         }
     }
 
-    const pair = [
+    // Rule 14. Consonant Cluster
+    const pair2 = [
         { from: CODA['ㄳ'], to: `${CODA['ㄱ']}${ONSET['ㅆ']}` },
         { from: CODA['ㄵ'], to: `${CODA['ㄴ']}${ONSET['ㅈ']}` },
         { from: CODA['ㄺ'], to: `${CODA['ㄹ']}${ONSET['ㄱ']}` },
@@ -132,15 +180,83 @@ function liaison(text: string): string {
         { from: CODA['ㅄ'], to: `${CODA['ㅂ']}${ONSET['ㅆ']}` },
     ];
 
-    for (const { from, to } of pair) {
+    for (const { from, to } of pair2) {
         text = text.replaceAll(new RegExp(`${from}${ONSET['ㅇ']}`, 'g'), to);
     }
 
     return text;
 }
 
-// Ru
+// Rule 17. Palatalization
+function palatalization(text: string): string {
+    text = text.replaceAll(new RegExp(`${CODA['ㄷ']}(?=${ONSET['ㅇ']}${VOWEL['ㅣ']})`, 'g'), ONSET['ㅈ']);
+    text = text.replaceAll(new RegExp(`${CODA['ㅌ']}(?=${ONSET['ㅇ']}${VOWEL['ㅣ']})`, 'g'), ONSET['ㅊ']);
+    text = text.replaceAll(new RegExp(`${CODA['ㄾ']}(?=${ONSET['ㅇ']}${VOWEL['ㅣ']})`, 'g'), `${CODA['ㄹ']}${ONSET['ㅊ']}`);
+    text = text.replaceAll(new RegExp(`${CODA['ㄷ']}(?=${ONSET['ㅎ']}${VOWEL['ㅣ']})`, 'g'), `${ONSET['ㅊ']}`);
+    return text;
+}
 
-// Rule Tensification
+// Rule 18. Nasalization
+function nasalization(text: string): string {
+    text = text.replaceAll(new RegExp(`[${CODA['ㄱ']}${CODA['ㄲ']}${CODA['ㅋ']}${CODA['ㄳ']}${CODA['ㄺ']}](?=[${ONSET['ㄴ']}${ONSET['ㅁ']}])`, 'g'), `${CODA['ㅇ']}`);
+    text = text.replaceAll(new RegExp(`[${CODA['ㄷ']}${CODA['ㅅ']}${CODA['ㅆ']}${CODA['ㅈ']}${CODA['ㅊ']}${CODA['ㅌ']}${CODA['ㅎ']}](?=[${ONSET['ㄴ']}${ONSET['ㅁ']}])`, 'g'), `${CODA['ㄴ']}`);
+    text = text.replaceAll(new RegExp(`[${CODA['ㅂ']}${CODA['ㅍ']}${CODA['ㄼ']}${CODA['ㄿ']}${CODA['ㅄ']}](?=[${ONSET['ㄴ']}${ONSET['ㅁ']}])`, 'g'), `${CODA['ㅁ']}`);
+    return text;
+}
+
+// Rule 19. Liquid-to-Nasal Assimilation
+function liquidToNasalAssimilation(text: string): string {
+    text = text.replaceAll(new RegExp(`(?<=[${CODA['ㅁ']}${CODA['ㅇ']}${CODA['ㄱ']}${CODA['ㅂ']}])${ONSET['ㄹ']}`, 'g'), `${CODA['ㄴ']}`);
+
+    return text;
+}
+
+// Rule 20. Lateralization
+function lateralization(text: string): string {
+    text = text.replaceAll(new RegExp(`(?<=${CODA['ㄹ']})${ONSET['ㄴ']}`, 'g'), `${ONSET['ㄹ']}`);
+    text = text.replaceAll(new RegExp(`${CODA['ㄴ']}(?=${ONSET['ㄹ']})`, 'g'), `${CODA['ㄹ']}`);
+    text = text.replaceAll(new RegExp(`[${CODA['ㄾ']}${CODA['ㅀ']}]${ONSET['ㄴ']}`, 'g'), `${CODA['ㄹ']}${ONSET['ㄹ']}`);
+    return text;
+}
+
+// Rule 23. Tensification
+function tensification(text: string): string {
+    const pair = [
+        { from: ONSET['ㄱ'], to: ONSET['ㄲ'] },
+        { from: ONSET['ㄷ'], to: ONSET['ㄸ'] },
+        { from: ONSET['ㅂ'], to: ONSET['ㅃ'] },
+        { from: ONSET['ㅅ'], to: ONSET['ㅆ'] },
+        { from: ONSET['ㅈ'], to: ONSET['ㅉ'] },
+    ];
+
+    for (const { from, to } of pair) {
+        text = text.replaceAll(new RegExp(`(?<=[${CODA['ㄱ']}${CODA['ㄲ']}${CODA['ㅋ']}${CODA['ㄳ']}${CODA['ㄺ']}])${from}`, 'g'), to);
+        text = text.replaceAll(new RegExp(`(?<=[${CODA['ㄷ']}${CODA['ㅅ']}${CODA['ㅆ']}${CODA['ㅈ']}${CODA['ㅊ']}${CODA['ㅌ']}])${from}`, 'g'), to);
+        text = text.replaceAll(new RegExp(`(?<=[${CODA['ㅂ']}${CODA['ㅍ']}${CODA['ㄼ']}${CODA['ㄿ']}${CODA['ㅄ']}])${from}`, 'g'), to);
+    }
+
+    // Rule 24.
+    for (const { from, to } of pair) {
+        if (from === ONSET['ㄱ'] || from === ONSET['ㅂ']) continue;
+        text = text.replaceAll(new RegExp(`(?<=[${CODA['ㄴ']}${CODA['ㄵ']}${CODA['ㅁ']}${CODA['ㄻ']}])${from}`, 'g'), to);
+    }
+
+    text = text.replaceAll(new RegExp(`(?<=[${CODA['ㄴ']}${CODA['ㄵ']}${CODA['ㅁ']}${CODA['ㄻ']}])${ONSET['ㄱ']}(?!${VOWEL['ㅣ']})`, 'g'), ONSET['ㄲ']);
+
+    // Rule 25.
+    for (const { from, to } of pair) {
+        if (from === ONSET['ㅂ']) continue;
+        text = text.replaceAll(new RegExp(`(?<=[${CODA['ㄼ']}${CODA['ㄾ']}])${from}`, 'g'), to);
+    }
+
+    // Rule 26.
+    for (const { from, to } of pair) {
+        if (from === ONSET['ㄱ'] || from === ONSET['ㅂ']) continue;
+        text = text.replaceAll(new RegExp(`(?<=[${CODA['ㄹ']}])${from}`, 'g'), to);
+    }
+
+    return text
+}
+
 
 export { g2p };
