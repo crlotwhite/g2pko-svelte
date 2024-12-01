@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { isHangul, composeAll, decomposeAll } from "./utils/common";
+  import { composeAll, decomposeAll } from "./utils/common";
   import { g2p } from "./utils/g2p";
   let inputText = "";
   let result = "";
