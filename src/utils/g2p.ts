@@ -1,7 +1,6 @@
 import { ONSET, CODA, VOWEL } from './constant';
-import { decomposeAll } from './common';
 
-function g2p(text: string): string {
+function g2p(text: string): { text: string, logs: string[] } {
     const process = [
         exceptionWords,
         diphthong,
@@ -19,28 +18,31 @@ function g2p(text: string): string {
         aspiration,
     ];
 
+    let logs: string[] = [];
     for (const p of process) {
         const before = text;
         text = p(text);
-        console.log(`[Process] ${p.name} ${before} -> ${text}`);
+        const log = `[Process] ${p.name} ${before} -> ${text}`;
+        console.log(log);
+        logs.push(log);
     }
 
-    return text;
+    return { text, logs };
 }
 
 function exceptionWords(text: string): string {
     const pair = [
-        { from: decomposeAll('의견란'), to: decomposeAll('의견난') },
-        { from: decomposeAll('임진란'), to: decomposeAll('임진난') },
-        { from: decomposeAll('생산량'), to: decomposeAll('생산냥') },
-        { from: decomposeAll('결단력'), to: decomposeAll('결딴녁') },
-        { from: decomposeAll('공권력'), to: decomposeAll('공꿘녁') },
-        { from: decomposeAll('동원령'), to: decomposeAll('동원녕') },
-        { from: decomposeAll('상견례'), to: decomposeAll('상견녜') },
-        { from: decomposeAll('횡단로'), to: decomposeAll('횡단노') },
-        { from: decomposeAll('이원론'), to: decomposeAll('이원논') },
-        { from: decomposeAll('입원료'), to: decomposeAll('이붠뇨') },
-        { from: decomposeAll('구근류'), to: decomposeAll('구근뉴') },
+        { from: '의견란'.normalize('NFD'), to: '의견난'.normalize('NFD') },
+        { from: '임진란'.normalize('NFD'), to: '임진난'.normalize('NFD') },
+        { from: '생산량'.normalize('NFD'), to: '생산냥'.normalize('NFD') },
+        { from: '결단력'.normalize('NFD'), to: '결딴녁'.normalize('NFD') },
+        { from: '공권력'.normalize('NFD'), to: '공꿘녁'.normalize('NFD') },
+        { from: '동원령'.normalize('NFD'), to: '동원녕'.normalize('NFD') },
+        { from: '상견례'.normalize('NFD'), to: '상견녜'.normalize('NFD') },
+        { from: '횡단로'.normalize('NFD'), to: '횡단노'.normalize('NFD') },
+        { from: '이원론'.normalize('NFD'), to: '이원논'.normalize('NFD') },
+        { from: '입원료'.normalize('NFD'), to: '이붠뇨'.normalize('NFD') },
+        { from: '구근류'.normalize('NFD'), to: '구근뉴'.normalize('NFD') },
     ];
 
     for (const { from, to } of pair) {
@@ -169,6 +171,8 @@ function liaison(text: string): string {
     const onsets = Object.keys(ONSET);
 
     for (const coda of codas) {
+        if (coda === 'ㅇ') continue;
+
         if (onsets.includes(coda)) {
             text = text.replaceAll(new RegExp(`${CODA[coda]}${ONSET['ㅇ']}`, 'g'), ONSET[coda]);
         }
@@ -195,10 +199,10 @@ function liaison(text: string): string {
 
 // Rule 17. Palatalization
 function palatalization(text: string): string {
-    text = text.replaceAll(new RegExp(`${CODA['ㄷ']}(?=${ONSET['ㅇ']}${VOWEL['ㅣ']})`, 'g'), ONSET['ㅈ']);
-    text = text.replaceAll(new RegExp(`${CODA['ㅌ']}(?=${ONSET['ㅇ']}${VOWEL['ㅣ']})`, 'g'), ONSET['ㅊ']);
-    text = text.replaceAll(new RegExp(`${CODA['ㄾ']}(?=${ONSET['ㅇ']}${VOWEL['ㅣ']})`, 'g'), `${CODA['ㄹ']}${ONSET['ㅊ']}`);
-    text = text.replaceAll(new RegExp(`${CODA['ㄷ']}(?=${ONSET['ㅎ']}${VOWEL['ㅣ']})`, 'g'), `${ONSET['ㅊ']}`);
+    text = text.replaceAll(new RegExp(`${CODA['ㄷ']}${ONSET['ㅇ']}(?=${VOWEL['ㅣ']})`, 'g'), ONSET['ㅈ']);
+    text = text.replaceAll(new RegExp(`${CODA['ㅌ']}${ONSET['ㅇ']}(?=${VOWEL['ㅣ']})`, 'g'), ONSET['ㅊ']);
+    text = text.replaceAll(new RegExp(`${CODA['ㄾ']}${ONSET['ㅇ']}(?=${VOWEL['ㅣ']})`, 'g'), `${CODA['ㄹ']}${ONSET['ㅊ']}`);
+    text = text.replaceAll(new RegExp(`${CODA['ㄷ']}${ONSET['ㅎ']}(?=${VOWEL['ㅣ']})`, 'g'), `${ONSET['ㅊ']}`);
     return text;
 }
 
