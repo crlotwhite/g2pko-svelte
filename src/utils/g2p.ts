@@ -4,10 +4,6 @@ import { decomposeAll } from './common';
 function g2p(text: string): string {
     text = exceptionWords(text);
     text = diphthong(text);
-    text = lenition(text);
-    text = clusterSimplification1(text);
-    text = clusterSimplification2(text);
-    text = aspiration(text);
     text = liaison(text);
     text = palatalization(text);
     text = liquidToNasalAssimilation(text);
@@ -15,6 +11,11 @@ function g2p(text: string): string {
     text = nasalInsertion(text);
     text = lateralization(text);
     text = tensification(text);
+    text = epenthesis(text);
+    text = lenition(text);
+    text = clusterSimplification1(text);
+    text = clusterSimplification2(text);
+    text = aspiration(text);
     return text;
 }
 
@@ -265,5 +266,27 @@ function nasalInsertion(text: string): string {
     return text;
 }
 
+// Rule 30. Epenthesis
+function epenthesis(text: string): string {
+    // Rule 30.1
+    const tenseConsonantPair = [
+        { from: ONSET['ㄱ'], to: ONSET['ㄲ'] },
+        { from: ONSET['ㄷ'], to: ONSET['ㄸ'] },
+        { from: ONSET['ㅂ'], to: ONSET['ㅃ'] },
+        { from: ONSET['ㅅ'], to: ONSET['ㅆ'] },
+        { from: ONSET['ㅈ'], to: ONSET['ㅉ'] },
+    ];
 
+    for (const { from, to } of tenseConsonantPair) {
+        text = text.replaceAll(new RegExp(`(?<=${CODA['ㅅ']})${from}`, 'g'), to);
+    }
+
+    // Rule 30.2
+    text = text.replaceAll(new RegExp(`${CODA['ㅅ']}(?=[${ONSET['ㄴ']}${ONSET['ㅁ']}])`, 'g'), CODA['ㄴ']);
+
+    // Rule 30.3
+    text = text.replaceAll(new RegExp(`${CODA['ㅅ']}${ONSET['ㅇ']}(?=${VOWEL['ㅣ']})`, 'g'), `${CODA['ㄴ']}${ONSET['ㄴ']}`);
+
+    return text;
+}
 export { g2p };
