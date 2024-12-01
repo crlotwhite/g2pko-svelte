@@ -5,56 +5,8 @@ function isHangul(text: string): boolean {
     return /[가-힣]/.test(text);
 }
 
-function decompose(text: string): string {
-    if (text.length === 0) return '';
-    if (!isHangul(text)) return text;
-
-    let charCode = text.charCodeAt(0);
-    let base = charCode - HANGUL_OFFSET;
-    let coda = base % 28;
-    let nucleus = 1 + Math.floor(((base - coda) % 588) / 28);
-    let onset = 1 + Math.floor(base / 588);
-    if (coda !== 0) {
-        return [
-            String.fromCharCode(ONSET_OFFSET + onset),
-            String.fromCharCode(NUCLEUS_OFFSET + nucleus),
-            String.fromCharCode(CODA_OFFSET + coda)
-        ].join('');
-    } else {
-        return [
-            String.fromCharCode(ONSET_OFFSET + onset),
-            String.fromCharCode(NUCLEUS_OFFSET + nucleus)
-        ].join('');
-    }
+function checkAll(text: string): boolean {
+    return text.split('').every(isHangul);
 }
 
-function compose(onset: string, nucleus: string, coda: string = ''): string {
-    const onsetIndex = onset.charCodeAt(0) - (ONSET_OFFSET + 1);
-    const nucleusIndex = nucleus.charCodeAt(0) - (NUCLEUS_OFFSET + 1);
-    const codaIndex = coda ? coda.charCodeAt(0) - CODA_OFFSET : 0;
-
-    const charCode = HANGUL_OFFSET + onsetIndex * 588 + nucleusIndex * 28 + codaIndex;
-
-    return String.fromCharCode(charCode);
-}
-
-function decomposeAll(text: string): string {
-    return text.split('').map(decompose).join('');
-}
-
-function composeAll(text: string): string {
-    let result = '';
-    for (let i = 0; i < text.length;) {
-        if (text[i + 2].charCodeAt(0) >= 0x11A8) {
-            result += compose(text[i], text[i + 1], text[i + 2]);
-            i += 3;
-        }
-        else {
-            result += compose(text[i], text[i + 1]);
-            i += 2;
-        }
-    }
-    return result;
-}
-
-export { isHangul, decompose, compose, decomposeAll, composeAll };
+export { isHangul, checkAll };
